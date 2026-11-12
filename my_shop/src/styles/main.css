@@ -1,0 +1,232 @@
+/* ===== متغیرها ===== */
+:root {
+    --primary: #4f46e5;
+    --primary-dark: #4338ca;
+    --accent: #06b6d4;
+    --bg: #f5f7fb;
+    --card-bg: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --radius: 16px;
+    --shadow: 0 10px 30px rgba(0, 0, 0, .07);
+}
+
+/* ===== ریست ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.9;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ===== هدر و منو ===== */
+.site-header {
+    background: rgba(255, 255, 255, .85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 1.25rem;
+    text-decoration: none;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.menu {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+}
+
+.menu a {
+    display: block;
+    padding: 8px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    color: var(--muted);
+    font-weight: 500;
+    transition: all .25s ease;
+}
+
+.menu a:hover {
+    background: #eef2ff;
+    color: var(--primary);
+}
+
+.menu a.active {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(79, 70, 229, .35);
+}
+
+/* ===== بخش Hero ===== */
+.hero {
+    margin: 40px 0 30px;
+    padding: 50px 30px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+    color: #fff;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.hero h1 {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    font-weight: 800;
+    letter-spacing: .5px;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    opacity: .92;
+}
+
+/* ===== کارت‌ها ===== */
+.card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 28px 30px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid #eef0f5;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .1);
+}
+
+.card h2 {
+    font-size: 1.35rem;
+    margin-bottom: 16px;
+    position: relative;
+    padding-right: 14px;
+}
+
+.card h2::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 22px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, var(--primary), var(--accent));
+}
+
+.card p {
+    color: #374151;
+    text-align: justify;
+}
+
+/* ===== لیست مهارت‌ها به شکل چیپ ===== */
+.skills {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.skills li {
+    background: #eef2ff;
+    color: var(--primary-dark);
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-weight: 500;
+    font-size: .95rem;
+    border: 1px solid #e0e7ff;
+    transition: all .25s ease;
+    cursor: default;
+}
+
+.skills li:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* ===== دکمه لینک ===== */
+.cta {
+    text-align: center;
+    margin: 36px 0 50px;
+}
+
+.cta a {
+    display: inline-block;
+    padding: 14px 34px;
+    border-radius: 999px;
+    background: var(--primary);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(79, 70, 229, .35);
+    transition: all .25s ease;
+}
+
+.cta a:hover {
+    background: var(--primary-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px rgba(79, 70, 229, .45);
+}
+
+/* ===== فوتر ===== */
+.site-footer {
+    text-align: center;
+    padding: 24px 20px;
+    color: var(--muted);
+    font-size: .9rem;
+    border-top: 1px solid #e5e7eb;
+    background: #fff;
+}
+
+/* ===== ریسپانسیو ===== */
+@media (max-width: 600px) {
+    .header-inner {
+        height: auto;
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px 0;
+    }
+
+    .hero {
+        padding: 34px 20px;
+    }
+
+    .hero h1 {
+        font-size: 1.5rem;
+    }
+
+    .card {
+        padding: 22px 20px;
+    }
+}

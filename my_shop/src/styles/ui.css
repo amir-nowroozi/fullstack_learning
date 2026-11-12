@@ -1,0 +1,646 @@
+/* ==========================================================
+   ui.css — استایل‌های مشترک: Toast، Theme، Mobile Menu، Dark Mode
+   در همه صفحات بعد از CSS مخصوص صفحه لینک شود
+   ========================================================== */
+
+/* ==================== TOAST ==================== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    max-width: min(400px, 90vw);
+    width: 100%;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    background: #fff;
+    color: #1f2937;
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    font-size: .92rem;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+    border: 1px solid #e5e7eb;
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity .25s ease, transform .25s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: #fff;
+}
+
+.toast-success .toast-icon { background: #10b981; }
+.toast-error .toast-icon   { background: #ef4444; }
+.toast-warning .toast-icon { background: #f59e0b; }
+.toast-info .toast-icon    { background: #3b82f6; }
+
+.toast-message {
+    flex: 1;
+    line-height: 1.6;
+}
+
+/* ==================== HEADER ACTIONS ==================== */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: auto;
+}
+
+.header-actions .hamburger-btn { order: 1; }
+.header-actions .theme-toggle  { order: 2; }
+.header-actions .cart-btn      { order: 3; }
+
+/* ==================== THEME TOGGLE ==================== */
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all .2s ease;
+    padding: 0;
+}
+
+.theme-toggle:hover {
+    border-color: #4f46e5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, .15);
+}
+
+/* ==================== HAMBURGER ==================== */
+.hamburger-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    padding: 0;
+    transition: all .2s ease;
+}
+
+.hamburger-btn span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: #1f2937;
+    border-radius: 2px;
+    transition: transform .3s ease, opacity .2s ease;
+}
+
+.hamburger-btn.active span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+.hamburger-btn.active span:nth-child(2) {
+    opacity: 0;
+}
+.hamburger-btn.active span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ==================== MOBILE MENU OVERLAY ==================== */
+.mobile-menu-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .45);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .3s ease, visibility .3s;
+    z-index: 998;
+}
+
+.mobile-menu-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ==================== MOBILE RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    /* هدر افقی بماند — جلوی رفتار ستونی قبلی */
+    .site-header .header-inner {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        min-height: 60px !important;
+        padding: 8px 0 !important;
+        gap: 10px !important;
+    }
+
+    .hamburger-btn {
+        display: inline-flex;
+    }
+
+    /* nav از جریان حذف شود */
+    .header-inner nav {
+        display: contents;
+    }
+
+    /* منو به drawer تبدیل شود */
+    .menu {
+        position: fixed !important;
+        top: 0;
+        right: 0;
+        height: 100vh;
+        width: 280px;
+        max-width: 82vw;
+        background: #fff;
+        padding: 70px 16px 24px;
+        flex-direction: column !important;
+        gap: 4px !important;
+        transform: translateX(100%);
+        transition: transform .3s ease;
+        z-index: 999;
+        box-shadow: -6px 0 30px rgba(0, 0, 0, .15);
+        border-radius: 0 !important;
+        overflow-y: auto;
+    }
+
+    body.menu-open .menu {
+        transform: translateX(0);
+    }
+
+    .menu li {
+        width: 100%;
+        flex: none !important;
+    }
+
+    .menu a {
+        display: block !important;
+        width: 100%;
+        text-align: right;
+        padding: 12px 16px !important;
+        border-radius: 10px !important;
+    }
+}
+
+/* ==================== DARK MODE ==================== */
+[data-theme="dark"] {
+    --bg: #0f172a;
+    --card-bg: #1e293b;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --primary: #818cf8;
+    --primary-dark: #a5b4fc;
+    --accent: #22d3ee;
+    --shadow: 0 10px 30px rgba(0, 0, 0, .4);
+}
+
+[data-theme="dark"] body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+[data-theme="dark"] .site-header {
+    background: #1e293b;
+    border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .menu {
+    background: #334155;
+}
+
+[data-theme="dark"] .menu a {
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .menu a:hover {
+    background: #475569;
+    color: #a5b4fc;
+}
+
+[data-theme="dark"] .menu a.active {
+    background: #1e293b;
+    color: #a5b4fc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
+}
+
+[data-theme="dark"] .theme-toggle,
+[data-theme="dark"] .hamburger-btn,
+[data-theme="dark"] .cart-btn {
+    background: #1e293b;
+    border-color: #334155;
+    color: var(--text);
+}
+
+[data-theme="dark"] .hamburger-btn span {
+    background: var(--text);
+}
+
+/* کارت‌ها و بخش‌ها */
+[data-theme="dark"] .product-card,
+[data-theme="dark"] .card {
+    background: var(--card-bg);
+    border-color: #334155;
+}
+
+[data-theme="dark"] .product-image,
+[data-theme="dark"] .product-detail-image,
+[data-theme="dark"] .cart-item-img {
+    background: #0f172a;
+}
+
+[data-theme="dark"] .card p,
+[data-theme="dark"] .product-description,
+[data-theme="dark"] .spec-key,
+[data-theme="dark"] .spec-value {
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .specs-box {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .spec-row {
+    border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .skills li {
+    background: #312e81;
+    color: #c7d2fe;
+    border-color: #4338ca;
+}
+
+[data-theme="dark"] .btn-add:disabled,
+[data-theme="dark"] .btn-checkout:disabled,
+[data-theme="dark"] .btn-add-lg:disabled {
+    background: #334155;
+    color: #64748b;
+}
+
+/* سبد خرید */
+[data-theme="dark"] .cart-drawer {
+    background: #1e293b;
+}
+
+[data-theme="dark"] .cart-header,
+[data-theme="dark"] .cart-footer {
+    border-color: #334155;
+}
+
+[data-theme="dark"] .cart-footer {
+    background: #0f172a;
+}
+
+[data-theme="dark"] .cart-close {
+    background: #334155;
+    color: var(--text);
+}
+
+[data-theme="dark"] .cart-close:hover {
+    background: #475569;
+}
+
+[data-theme="dark"] .cart-item {
+    border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .cart-item-name {
+    color: var(--text);
+}
+
+[data-theme="dark"] .cart-item-price,
+[data-theme="dark"] .cart-total strong {
+    color: var(--primary-dark);
+}
+
+[data-theme="dark"] .qty-control {
+    background: #334155;
+}
+
+[data-theme="dark"] .qty-btn {
+    background: #1e293b;
+    color: var(--text);
+}
+
+[data-theme="dark"] .cart-remove:hover {
+    background: rgba(239, 68, 68, .15);
+}
+
+/* فرم‌ها */
+[data-theme="dark"] .form-row input[type="text"],
+[data-theme="dark"] .form-row textarea,
+[data-theme="dark"] .shop-toolbar input[type="search"],
+[data-theme="dark"] .shop-toolbar select {
+    background: #0f172a;
+    border-color: #334155;
+    color: var(--text);
+}
+
+[data-theme="dark"] .shop-toolbar {
+    background: var(--card-bg);
+    border-color: #334155;
+}
+
+/* نظرات */
+[data-theme="dark"] .review-item,
+[data-theme="dark"] .review-form {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .review-text {
+    color: #cbd5e1;
+}
+
+/* فوتر */
+[data-theme="dark"] .site-footer {
+    background: #1e293b;
+    border-top-color: #334155;
+}
+
+/* Toast */
+[data-theme="dark"] .toast {
+    background: #1e293b;
+    color: var(--text);
+    border-color: #334155;
+}
+
+/* منوی موبایل در حالت دارک */
+@media (max-width: 768px) {
+    [data-theme="dark"] .menu {
+        background: #1e293b;
+    }
+}
+
+/* ===== React root: چسبیدن فوتر به پایین ===== */
+#root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#root > main {
+    flex: 1;
+    width: 100%;
+}
+
+/* ===== کانتینر باریک‌تر برای صفحه اصلی و جزئیات ===== */
+.container-narrow {
+    max-width: 900px;
+}
+
+/* ==================== AUTH PAGES ==================== */
+.auth-card {
+    max-width: 440px;
+    margin: 40px auto;
+    background: var(--card-bg);
+    border: 1px solid #eef0f5;
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    box-shadow: var(--shadow);
+}
+
+.auth-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+    padding-right: 14px;
+    position: relative;
+}
+
+.auth-title::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 26px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, var(--primary), var(--accent));
+}
+
+.auth-subtitle {
+    color: var(--muted);
+    font-size: .92rem;
+    margin-bottom: 22px;
+    padding-right: 14px;
+}
+
+.auth-card .form-row { margin-bottom: 14px; }
+
+.auth-card .form-row label {
+    display: block;
+    font-size: .88rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.auth-card .form-row input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: .92rem;
+    background: #fff;
+    color: var(--text);
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.auth-card .form-row input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79,70,229,.1);
+}
+
+.auth-card .btn-submit-order {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--muted);
+    font-size: .9rem;
+}
+
+.auth-switch a {
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.auth-switch a:hover { text-decoration: underline; }
+
+/* ==================== USER MENU ==================== */
+.login-link {
+    padding: 9px 18px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: .9rem;
+    transition: all .2s ease;
+}
+
+.login-link:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(79,70,229,.12);
+}
+
+.user-menu { position: relative; }
+
+.user-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px 5px 5px;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .2s ease;
+}
+
+.user-btn:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(79,70,229,.12);
+}
+
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    font-weight: 700;
+    font-size: .85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-name {
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 180px;
+    background: #fff;
+    border: 1px solid #eef0f5;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.12);
+    padding: 6px;
+    z-index: 500;
+    animation: dropdown-in .15s ease;
+}
+
+@keyframes dropdown-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.user-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: .9rem;
+    font-weight: 500;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: right;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s;
+}
+
+.user-dropdown-item:hover { background: #f3f4f6; }
+
+.user-dropdown-item.danger { color: #ef4444; }
+
+.user-dropdown-item.danger:hover { background: #fef2f2; }
+
+/* ==================== DARK MODE ==================== */
+[data-theme="dark"] .auth-card,
+[data-theme="dark"] .user-dropdown {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .auth-card .form-row input {
+    background: #0f172a;
+    border-color: #334155;
+    color: var(--text);
+}
+
+[data-theme="dark"] .user-btn,
+[data-theme="dark"] .login-link {
+    background: #1e293b;
+    border-color: #334155;
+    color: var(--primary);
+}
+
+[data-theme="dark"] .user-dropdown-item:hover {
+    background: #334155;
+}
+
+[data-theme="dark"] .user-dropdown-item.danger:hover {
+    background: rgba(239, 68, 68, .15);
+}
+
+/* ==================== MOBILE ==================== */
+@media (max-width: 600px) {
+    .user-name { display: none; }
+
+    .user-btn { padding: 4px; }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    .auth-card { padding: 24px 20px; margin: 24px auto; }
+    .auth-title { font-size: 1.25rem; }
+}
