@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import {
     validateEmail, validatePhone, validatePassword,
-} from '../lib/authLogic';
+} from '../lib/validators';
 
 export default function RegisterPage() {
     const { register } = useAuth();

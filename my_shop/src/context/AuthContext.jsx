@@ -1,11 +1,13 @@
+/* ==========================================================
+   context/AuthContext.jsx — احراز هویت با API بک‌اند
+   - توکن JWT در localStorage (کلید shop_token)
+   - روی بارگذاری اول، /api/auth/me را صدا می‌زند تا توکن را تأیید کند
+   ========================================================== */
+
 import {
     createContext, useContext, useState, useEffect, useCallback, useMemo,
 } from 'react';
-import {
-    registerUser, verifyLogin,
-    saveSession, loadSession, clearSession,
-    findUserById,
-} from '../lib/authLogic';
+import { apiFetch, getToken, setToken } from '../lib/apiClient';
 
 const AuthContext = createContext(null);
 
@@ -13,37 +15,51 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    /* بازیابی session هنگام بارگذاری */
+    /* ---------- روی بارگذاری: توکن را تأیید کن ---------- */
     useEffect(() => {
-        const session = loadSession();
-        if (session?.userId) {
-            const stored = findUserById(session.userId);
-            if (stored) {
-                const { passwordHash, ...safe } = stored;
-                setUser(safe);
-            } else {
-                clearSession();
+        (async () => {
+            const token = getToken();
+            if (!token) {
+                setLoading(false);
+                return;
             }
-        }
-        setLoading(false);
+            try {
+                const data = await apiFetch('/api/auth/me');
+                setUser(data.user);
+            } catch {
+                setToken(null);
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        })();
     }, []);
 
-    const register = useCallback(async (data) => {
-        const newUser = await registerUser(data);
-        saveSession(newUser);
-        setUser(newUser);
-        return newUser;
+    /* ---------- ثبت‌نام ---------- */
+    const register = useCallback(async ({ email, password, fullName, phone }) => {
+        const res = await apiFetch('/api/auth/register', {
+            method: 'POST',
+            body: JSON.stringify({ email, password, fullName, phone }),
+        });
+        setToken(res.token);
+        setUser(res.user);
+        return res.user;
     }, []);
 
+    /* ---------- ورود ---------- */
     const login = useCallback(async (email, password) => {
-        const found = await verifyLogin(email, password);
-        saveSession(found);
-        setUser(found);
-        return found;
+        const res = await apiFetch('/api/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password }),
+        });
+        setToken(res.token);
+        setUser(res.user);
+        return res.user;
     }, []);
 
+    /* ---------- خروج ---------- */
     const logout = useCallback(() => {
-        clearSession();
+        setToken(null);
         setUser(null);
     }, []);
 

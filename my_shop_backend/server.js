@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import productsRouter from './routes/products.js';
+import authRouter from './routes/auth.js';             // ⭐ اضافه
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/products', productsRouter);
+app.use('/api/auth', authRouter);                     // ⭐ اضافه
 
 /* ---------- 404 برای API ---------- */
 app.use('/api', (req, res) => {
@@ -33,6 +35,7 @@ app.use((err, req, res, next) => {
 /* ---------- Start ---------- */
 app.listen(PORT, () => {
     console.log(`\n✓ Backend running at http://localhost:${PORT}`);
-    console.log(`  Health check: http://localhost:${PORT}/api/health`);
-    console.log(`  Products:     http://localhost:${PORT}/api/products\n`);
+    console.log(`  Health:    http://localhost:${PORT}/api/health`);
+    console.log(`  Products:  http://localhost:${PORT}/api/products`);
+    console.log(`  Auth:      http://localhost:${PORT}/api/auth\n`);
 });

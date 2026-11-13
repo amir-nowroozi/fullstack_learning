@@ -1,3 +1,4 @@
+# my_shop/.gitignore
 node_modules/
 dist/
 .vite/
@@ -5,3 +6,10 @@ dist/
 .env
 .env.local
 .DS_Store
+
+# Backend
+my_shop_backend/node_modules/
+my_shop_backend/.env
+my_shop_backend/*.db
+my_shop_backend/*.db-wal
+my_shop_backend/*.db-shm
