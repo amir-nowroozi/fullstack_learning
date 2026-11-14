@@ -2,7 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import productsRouter from './routes/products.js';
-import authRouter from './routes/auth.js';             // ⭐ اضافه
+import authRouter from './routes/auth.js';
+import {
+    listReviewsHandler,
+    createReviewHandler,
+    deleteReviewHandler,
+} from './routes/reviews.js';                         // ⭐ اضافه
+import { requireAuth } from './middleware/auth.js';  // ⭐ اضافه
 
 dotenv.config();
 
@@ -19,9 +25,14 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/products', productsRouter);
-app.use('/api/auth', authRouter);                     // ⭐ اضافه
+app.use('/api/auth', authRouter);
 
-/* ---------- 404 برای API ---------- */
+/* ⭐ Reviews — nested under products */
+app.get('/api/products/:productId/reviews', listReviewsHandler);
+app.post('/api/products/:productId/reviews', requireAuth, createReviewHandler);
+app.delete('/api/reviews/:id', requireAuth, deleteReviewHandler);
+
+/* ---------- 404 ---------- */
 app.use('/api', (req, res) => {
     res.status(404).json({ error: 'Endpoint not found' });
 });
@@ -32,10 +43,6 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: err.message || 'Internal error' });
 });
 
-/* ---------- Start ---------- */
 app.listen(PORT, () => {
-    console.log(`\n✓ Backend running at http://localhost:${PORT}`);
-    console.log(`  Health:    http://localhost:${PORT}/api/health`);
-    console.log(`  Products:  http://localhost:${PORT}/api/products`);
-    console.log(`  Auth:      http://localhost:${PORT}/api/auth\n`);
+    console.log(`\n✓ Backend running at http://localhost:${PORT}\n`);
 });

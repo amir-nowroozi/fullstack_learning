@@ -1,0 +1,28 @@
+# ============ Frontend (my_shop) ============
+my_shop/node_modules/
+my_shop/dist/
+my_shop/.vite/
+my_shop/*.local
+
+# ============ Backend (my_shop_backend) ============
+my_shop_backend/node_modules/
+my_shop_backend/store.db
+my_shop_backend/*.db
+my_shop_backend/*.db-wal
+my_shop_backend/*.db-shm
+
+# ============ Secrets ============
+# .env بک‌اند حاوی JWT_SECRET است — هرگز commit نشود
+my_shop_backend/.env
+
+# .env فرانت فقط VITE_API_URL دارد (حساس نیست) — اگر می‌خواهی commit کن
+# my_shop/.env
+
+# ============ OS ============
+.DS_Store
+Thumbs.db
+
+# ============ IDE ============
+.vscode/
+.idea/
+*.swp
