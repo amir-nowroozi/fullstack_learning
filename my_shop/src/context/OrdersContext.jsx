@@ -1,57 +1,72 @@
 /* ==========================================================
-   context/OrdersContext.jsx — مدیریت سفارش‌ها در کل اپ
-   وابسته به: CartContext (برای دسترسی به سبد) و AuthContext
+   context/OrdersContext.jsx — مدیریت سفارش‌ها از API
    ========================================================== */
 
 import {
-    createContext, useContext, useState, useCallback, useMemo,
+    createContext, useContext, useState, useEffect, useCallback, useMemo,
 } from 'react';
 import {
-    loadOrders,
-    createOrder as createOrderPure,
-    calculateShipping,
-} from '../lib/ordersLogic';
-import { getAllProducts } from '../lib/products';
+    fetchOrders,
+    createOrder as createOrderApi,
+} from '../lib/ordersApi';
+import { useAuth } from './AuthContext';
 import { useCart } from './CartContext';
 import { useToast } from './ToastContext';
-import { useAuth } from './AuthContext';
 
 const OrdersContext = createContext(null);
 
 export function OrdersProvider({ children }) {
-    const [orders, setOrders] = useState(loadOrders);
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const { user, isAuthenticated } = useAuth();
     const cart = useCart();
-    const { show: showToast } = useToast();
-    const { user } = useAuth();
+    const { show } = useToast();
 
-    const create = useCallback(({ customer, paymentMethod }) => {
-        const subtotal = cart.total;
-        const shippingCost = calculateShipping(subtotal);
-        const products = getAllProducts();
+    /* ---------- بارگذاری سفارش‌ها (فقط اگر لاگین است) ---------- */
+    const refresh = useCallback(async () => {
+        if (!isAuthenticated) {
+            setOrders([]);
+            return;
+        }
+        setLoading(true);
+        try {
+            const data = await fetchOrders();
+            setOrders(data);
+        } catch (err) {
+            console.error('[OrdersContext] refresh failed:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, [isAuthenticated]);
 
-        const order = createOrderPure({
-            cart: cart.cart,
-            products,
-            customer,
-            paymentMethod,
-            shippingCost,
-            userId: user?.id ?? null,  // ⭐ سفارش به کاربر جاری وصل می‌شود
-        });
+    useEffect(() => {
+        refresh();
+    }, [refresh]);
 
-        setOrders(loadOrders());
+    /* ---------- ثبت سفارش جدید ---------- */
+    const create = useCallback(async ({ customer, paymentMethod }) => {
+        // فقط productId و quantity می‌فرستیم — قیمت روی سرور محاسبه می‌شود
+        const items = cart.cart.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+        }));
+
+        const order = await createOrderApi({ customer, paymentMethod, items });
+
+        setOrders(prev => [order, ...prev]);
         cart.clear();
-        showToast('سفارش با موفقیت ثبت شد!', 'success');
+        show('سفارش با موفقیت ثبت شد!', 'success');
         return order;
-    }, [cart, showToast, user]);
+    }, [cart, show]);
 
+    /* ---------- پیدا کردن سفارش از cache ---------- */
     const getById = useCallback((id) => {
-        return orders.find(o => o.id === id);
+        return orders.find(o => o.id === id) || null;
     }, [orders]);
 
-    const value = useMemo(
-        () => ({ orders, create, getById }),
-        [orders, create, getById]
-    );
+    const value = useMemo(() => ({
+        orders, loading, create, getById, refresh,
+    }), [orders, loading, create, getById, refresh]);
 
     return <OrdersContext.Provider value={value}>{children}</OrdersContext.Provider>;
 }

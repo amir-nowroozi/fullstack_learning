@@ -1,11 +1,10 @@
 /* ==========================================================
-   pages/OrderSuccessPage.jsx — جزئیات کامل سفارش
-   - با ?id=ORD-...&new=1 : بنر موفقیت + جزئیات (بعد از ثبت)
-   - با ?id=ORD-...       : فقط جزئیات (از /orders)
+   pages/OrderSuccessPage.jsx — جزئیات سفارش (از API)
    ========================================================== */
 
+import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { useOrders } from '../context/OrdersContext';
+import { fetchOrder } from '../lib/ordersApi';
 import { formatPrice, toPersianDigits } from '../lib/format';
 import {
     ORDER_STATUS_LABELS,
@@ -27,17 +26,47 @@ export default function OrderSuccessPage() {
     const [params] = useSearchParams();
     const orderId = params.get('id');
     const isNew = params.get('new') === '1';
-    const { getById } = useOrders();
-    const order = orderId ? getById(orderId) : null;
 
-    /* خطا: شناسه در URL نیست یا سفارش پیدا نشد */
-    if (!orderId || !order) {
+    const [order, setOrder] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (!orderId) {
+            setLoading(false);
+            setError('شماره سفارش در آدرس نیست.');
+            return;
+        }
+
+        let cancelled = false;
+        setLoading(true);
+        setError(null);
+
+        fetchOrder(orderId)
+            .then(o => { if (!cancelled) setOrder(o); })
+            .catch(err => {
+                if (!cancelled) setError(err.message || `سفارش «${orderId}» پیدا نشد`);
+            })
+            .finally(() => { if (!cancelled) setLoading(false); });
+
+        return () => { cancelled = true; };
+    }, [orderId]);
+
+    if (loading) {
+        return (
+            <main className="container">
+                <p className="loading-msg" style={{ marginTop: 40 }}>
+                    در حال بارگذاری سفارش...
+                </p>
+            </main>
+        );
+    }
+
+    if (error || !order) {
         return (
             <main className="container container-narrow">
                 <p className="error-msg" style={{ marginTop: 40 }}>
-                    {!orderId
-                        ? 'شماره سفارش در آدرس نیست.'
-                        : `سفارش «${orderId}» پیدا نشد.`}
+                    {error || 'سفارش پیدا نشد'}
                     <br /><br />
                     <Link to="/orders" className="btn-secondary">سفارش‌های من</Link>
                     {' '}
@@ -49,8 +78,6 @@ export default function OrderSuccessPage() {
 
     return (
         <main className="container">
-
-            {/* بنر موفقیت — فقط وقتی از checkout آمده */}
             {isNew && (
                 <div className="success-banner">
                     <div className="success-icon">✓</div>
@@ -59,10 +86,7 @@ export default function OrderSuccessPage() {
                 </div>
             )}
 
-            {/* کارت سفارش */}
             <div className="order-card">
-
-                {/* سربرگ: شماره + status */}
                 <div className="order-card-header">
                     <div>
                         <div className="order-id-label">شماره سفارش</div>
@@ -73,7 +97,6 @@ export default function OrderSuccessPage() {
                     </span>
                 </div>
 
-                {/* متادیتا */}
                 <div className="order-meta">
                     <div className="meta-row">
                         <span>تاریخ ثبت:</span>
@@ -87,7 +110,6 @@ export default function OrderSuccessPage() {
                     </div>
                 </div>
 
-                {/* اطلاعات گیرنده */}
                 <div className="order-section">
                     <h3>اطلاعات گیرنده</h3>
                     <div className="meta-row">
@@ -122,7 +144,6 @@ export default function OrderSuccessPage() {
                     )}
                 </div>
 
-                {/* اقلام سفارش */}
                 <div className="order-section">
                     <h3>اقلام سفارش</h3>
                     {order.items.map(item => (
@@ -141,7 +162,6 @@ export default function OrderSuccessPage() {
                     ))}
                 </div>
 
-                {/* جمع کل */}
                 <div className="order-totals">
                     <div className="meta-row">
                         <span>جمع کالاها:</span>
@@ -160,7 +180,6 @@ export default function OrderSuccessPage() {
                 </div>
             </div>
 
-            {/* دکمه‌های پایانی */}
             <div className="order-actions">
                 <Link to="/shop" className="btn-secondary">ادامه خرید</Link>
                 <Link to="/orders" className="btn-primary">سفارش‌های من</Link>

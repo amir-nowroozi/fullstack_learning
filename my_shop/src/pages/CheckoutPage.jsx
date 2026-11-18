@@ -1,8 +1,8 @@
 /* ==========================================================
    pages/CheckoutPage.jsx — فرم تکمیل خرید
-   - پیش‌پر کردن فیلدها از پروفایل کاربر (اگر لاگین است)
+   - پیش‌پر کردن فیلدها از پروفایل کاربر
    - اعتبارسنجی سمت کلاینت
-   - ثبت سفارش و انتقال به order-success
+   - ثبت سفارش از طریق API (قیمت‌ها سمت سرور محاسبه می‌شوند)
    ========================================================== */
 
 import { useState, useMemo } from 'react';
@@ -49,13 +49,13 @@ export default function CheckoutPage() {
     const { show } = useToast();
     const navigate = useNavigate();
 
-    // ⭐ مقدار اولیه از پروفایل کاربر
     const [form, setForm] = useState(() => ({
         ...INITIAL_FORM,
         fullName: user?.fullName || '',
         phone:    user?.phone || '',
         email:    user?.email || '',
     }));
+    const [submitting, setSubmitting] = useState(false);
 
     const shipping = useMemo(() => calculateShipping(cart.total), [cart.total]);
     const grandTotal = cart.total + shipping;
@@ -64,15 +64,19 @@ export default function CheckoutPage() {
         setForm(prev => ({ ...prev, [field]: e.target.value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        if (submitting) return;
+
         const errors = validate(form);
         if (errors.length > 0) {
             errors.forEach(msg => show(msg, 'error', 3500));
             return;
         }
+
+        setSubmitting(true);
         try {
-            const order = orders.create({
+            const order = await orders.create({
                 customer: {
                     fullName:   form.fullName.trim(),
                     phone:      form.phone.trim(),
@@ -88,7 +92,9 @@ export default function CheckoutPage() {
             navigate(`/order-success?id=${order.id}&new=1`);
         } catch (err) {
             console.error('[CheckoutPage] create order failed:', err);
-            show('خطا در ثبت سفارش', 'error');
+            show(err.message || 'خطا در ثبت سفارش', 'error');
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -116,21 +122,40 @@ export default function CheckoutPage() {
                         <div className="form-row-2col">
                             <div className="form-row">
                                 <label htmlFor="fullName">نام و نام خانوادگی *</label>
-                                <input id="fullName" type="text" value={form.fullName}
-                                    onChange={handleChange('fullName')} maxLength={80} required />
+                                <input
+                                    id="fullName"
+                                    type="text"
+                                    value={form.fullName}
+                                    onChange={handleChange('fullName')}
+                                    maxLength={80}
+                                    required
+                                />
                             </div>
                             <div className="form-row">
                                 <label htmlFor="phone">شماره موبایل *</label>
-                                <input id="phone" type="tel" value={form.phone}
-                                    onChange={handleChange('phone')} maxLength={11}
-                                    dir="ltr" placeholder="09123456789" required />
+                                <input
+                                    id="phone"
+                                    type="tel"
+                                    value={form.phone}
+                                    onChange={handleChange('phone')}
+                                    maxLength={11}
+                                    dir="ltr"
+                                    placeholder="09123456789"
+                                    required
+                                />
                             </div>
                         </div>
                         <div className="form-row">
                             <label htmlFor="email">ایمیل (اختیاری)</label>
-                            <input id="email" type="email" value={form.email}
-                                onChange={handleChange('email')} maxLength={80}
-                                dir="ltr" placeholder="example@email.com" />
+                            <input
+                                id="email"
+                                type="email"
+                                value={form.email}
+                                onChange={handleChange('email')}
+                                maxLength={80}
+                                dir="ltr"
+                                placeholder="example@email.com"
+                            />
                         </div>
                     </section>
 
@@ -139,33 +164,63 @@ export default function CheckoutPage() {
                         <div className="form-row-2col">
                             <div className="form-row">
                                 <label htmlFor="province">استان *</label>
-                                <select id="province" value={form.province}
-                                    onChange={handleChange('province')} required>
+                                <select
+                                    id="province"
+                                    value={form.province}
+                                    onChange={handleChange('province')}
+                                    required
+                                >
                                     <option value="">انتخاب کنید...</option>
-                                    {PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
+                                    {PROVINCES.map(p => (
+                                        <option key={p} value={p}>{p}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="form-row">
                                 <label htmlFor="city">شهر *</label>
-                                <input id="city" type="text" value={form.city}
-                                    onChange={handleChange('city')} maxLength={40} required />
+                                <input
+                                    id="city"
+                                    type="text"
+                                    value={form.city}
+                                    onChange={handleChange('city')}
+                                    maxLength={40}
+                                    required
+                                />
                             </div>
                         </div>
                         <div className="form-row">
                             <label htmlFor="address">آدرس دقیق پستی *</label>
-                            <textarea id="address" rows={3} value={form.address}
-                                onChange={handleChange('address')} maxLength={300} required />
+                            <textarea
+                                id="address"
+                                rows={3}
+                                value={form.address}
+                                onChange={handleChange('address')}
+                                maxLength={300}
+                                required
+                            />
                         </div>
                         <div className="form-row">
                             <label htmlFor="postalCode">کد پستی *</label>
-                            <input id="postalCode" type="text" value={form.postalCode}
-                                onChange={handleChange('postalCode')} maxLength={10}
-                                dir="ltr" placeholder="1234567890" required />
+                            <input
+                                id="postalCode"
+                                type="text"
+                                value={form.postalCode}
+                                onChange={handleChange('postalCode')}
+                                maxLength={10}
+                                dir="ltr"
+                                placeholder="1234567890"
+                                required
+                            />
                         </div>
                         <div className="form-row">
                             <label htmlFor="notes">یادداشت (اختیاری)</label>
-                            <textarea id="notes" rows={2} value={form.notes}
-                                onChange={handleChange('notes')} maxLength={300} />
+                            <textarea
+                                id="notes"
+                                rows={2}
+                                value={form.notes}
+                                onChange={handleChange('notes')}
+                                maxLength={300}
+                            />
                         </div>
                     </section>
 
@@ -173,18 +228,26 @@ export default function CheckoutPage() {
                         <h2>روش پرداخت</h2>
                         <div className="payment-options">
                             <label className="payment-option">
-                                <input type="radio" name="paymentMethod" value="cash"
+                                <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="cash"
                                     checked={form.paymentMethod === 'cash'}
-                                    onChange={handleChange('paymentMethod')} />
+                                    onChange={handleChange('paymentMethod')}
+                                />
                                 <span className="payment-card">
                                     <strong>💵 پرداخت در محل</strong>
                                     <small>هنگام تحویل کالا پرداخت کنید</small>
                                 </span>
                             </label>
                             <label className="payment-option">
-                                <input type="radio" name="paymentMethod" value="online"
+                                <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="online"
                                     checked={form.paymentMethod === 'online'}
-                                    onChange={handleChange('paymentMethod')} />
+                                    onChange={handleChange('paymentMethod')}
+                                />
                                 <span className="payment-card">
                                     <strong>💳 پرداخت آنلاین</strong>
                                     <small>درگاه بانکی (به‌زودی)</small>
@@ -193,7 +256,13 @@ export default function CheckoutPage() {
                         </div>
                     </section>
 
-                    <button type="submit" className="btn-submit-order">ثبت سفارش</button>
+                    <button
+                        type="submit"
+                        className="btn-submit-order"
+                        disabled={submitting}
+                    >
+                        {submitting ? 'در حال ثبت سفارش...' : 'ثبت سفارش'}
+                    </button>
                 </form>
 
                 <aside className="order-summary">
@@ -201,11 +270,17 @@ export default function CheckoutPage() {
                     <div className="summary-items">
                         {cart.items.map(item => (
                             <div key={item.productId} className="summary-item">
-                                <img src={item.product.image} alt={item.product.name} />
+                                <img
+                                    src={item.product.image}
+                                    alt={item.product.name}
+                                />
                                 <div className="summary-item-info">
-                                    <div className="summary-item-name">{item.product.name}</div>
+                                    <div className="summary-item-name">
+                                        {item.product.name}
+                                    </div>
                                     <div className="summary-item-qty">
-                                        {toPersianDigits(item.quantity)} × {formatPrice(item.product.price)}
+                                        {toPersianDigits(item.quantity)} ×{' '}
+                                        {formatPrice(item.product.price)}
                                     </div>
                                 </div>
                                 <div className="summary-item-total">
@@ -221,7 +296,9 @@ export default function CheckoutPage() {
                         </div>
                         <div className="summary-row">
                             <span>هزینه ارسال:</span>
-                            <strong>{shipping === 0 ? 'رایگان 🎉' : formatPrice(shipping)}</strong>
+                            <strong>
+                                {shipping === 0 ? 'رایگان 🎉' : formatPrice(shipping)}
+                            </strong>
                         </div>
                         <div className="summary-row grand">
                             <span>مبلغ قابل پرداخت:</span>
